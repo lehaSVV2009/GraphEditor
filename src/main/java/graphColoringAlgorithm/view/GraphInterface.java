@@ -4,7 +4,8 @@ import graphColoringAlgorithm.entity.Graph;
 import graphColoringAlgorithm.entity.Vertex;
 import graphColoringAlgorithm.model.GraphColorer;
 import graphColoringAlgorithm.model.GraphColorerHeuristics;
-import graphColoringAlgorithm.model.GraphColorerImpl;
+import graphColoringAlgorithm.model.GraphColorerImplicit;
+import graphColoringAlgorithm.model.GraphColorerSimple;
 
 import java.applet.Applet;
 import java.awt.*;
@@ -23,7 +24,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
     /**
      * Граф, который раскрашивается
      */
-    private Graph graph;
+    private Graph currentGraph;
     /*
      *
      * Координаты вершин (Вершина => [x, y])
@@ -74,7 +75,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     public void init() {
         this.position = new HashMap();
-        this.graph = new Graph();
+        this.currentGraph = new Graph();
         this.movingVertex = null;
         this.creatingEdgeFrom = null;
         this.vertexToDelete = null;
@@ -83,16 +84,17 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
         this.method = new Choice();
         this.method.add("Неявный перебор");
         this.method.add("Эвристический метод");
+        this.method.add("Простая раскраска");
         this.method.addItemListener(this);
         add(this.method);
         // Граф по-умолчанию
         Vertex Vertex1 = this.addVertex(new Point(200, 100));
         Vertex Vertex2 = this.addVertex(new Point(160, 170));
         Vertex Vertex3 = this.addVertex(new Point(240, 170));
-        this.graph.setEdge(Vertex1, Vertex2);
-        this.graph.setEdge(Vertex2, Vertex3);
-        this.graph.setEdge(Vertex3, Vertex1);
-        this.colorer = new GraphColorerImpl();
+        this.currentGraph.setEdge(Vertex1, Vertex2);
+        this.currentGraph.setEdge(Vertex2, Vertex3);
+        this.currentGraph.setEdge(Vertex3, Vertex1);
+        this.colorer = new GraphColorerImplicit();
     }
 
     /**
@@ -109,13 +111,13 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
         colors[6] = Color.magenta;
         colors[7] = Color.yellow;
         colors[8] = Color.gray;
-        this.colors = this.colorer.getColors(this.graph);
+        this.colors = this.colorer.getColors(this.currentGraph);
         Graphics.setColor(Color.white);
         Graphics.fillRect(0, 0, 400, 300);
 
 
         Graphics.setColor(Color.black);
-        for (Vertex Vertex1 : this.graph.getVertices()) {
+        for (Vertex Vertex1 : this.currentGraph.getVertices()) {
             for (Vertex Vertex2 : Vertex1.getIncidentVertices()) {
                 if (
                         (Vertex1 != this.vertexToDelete) &&
@@ -182,15 +184,14 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
             }
             Graphics.setColor(Color.black);
         }
-        for (Vertex Vertex : this.graph.getVertices()) {
+        for (Vertex Vertex : this.currentGraph.getVertices()) {
             if (Vertex != this.vertexToDelete) {
                 Graphics.setColor(colors[this.colors.get(Vertex)]);
                 Graphics.fillOval(this.position.get(Vertex).x - 4,
                         this.position.get(Vertex).y - 4, 8, 8);
             }
         }
-        if (
-                (null != this.selectedVertex) &&
+        if ((null != this.selectedVertex) &&
                         (this.vertexToDelete != this.selectedVertex)
                 ) {
             Graphics.setColor(colors[this.colors.get(this.selectedVertex)]);
@@ -215,7 +216,10 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * @return Созданная вершина
      */
     private Vertex addVertex(Point Point) {
-        Vertex Vertex = this.graph.addVertex();
+
+        //TODO: insert addName
+        //TODO: insert addContent
+        Vertex Vertex = this.currentGraph.addVertex();
         this.position.put(Vertex, Point);
         repaint();
         return Vertex;
@@ -228,7 +232,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private void deleteVertex(Vertex Vertex) {
         this.position.remove(Vertex);
-        this.graph.deleteVertex(Vertex);
+        this.currentGraph.deleteVertex(Vertex);
         repaint();
     }
 
@@ -239,7 +243,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * @param To   Вторая вершина
      */
     private void createEdge(Vertex From, Vertex To) {
-        this.graph.setEdge(From, To);
+        this.currentGraph.setEdge(From, To);
         repaint();
     }
 
@@ -265,7 +269,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * @return Вершина, над которой курсор, иначе null
      */
     private Vertex underVertex(Point Cursor) {
-        for (Vertex Vertex : this.graph.getVertices()) {
+        for (Vertex Vertex : this.currentGraph.getVertices()) {
             if (this.underVertex(Cursor, Vertex)) {
                 return Vertex;
             }
@@ -318,7 +322,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private Vertex[] underEdge(Point Cursor) {
         Vertex[] Edge = new Vertex[2];
-        for (Vertex Vertex1 : this.graph.getVertices()) {
+        for (Vertex Vertex1 : this.currentGraph.getVertices()) {
             for (Vertex Vertex2 : Vertex1.getIncidentVertices()) {
                 if (Vertex1.isConnect(Vertex2)) {
                     Edge[0] = Vertex1;
@@ -338,10 +342,13 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * Действия при переключении способа раскраски
      */
     public void itemStateChanged(ItemEvent Event) {
-        if (0 == this.method.getSelectedIndex()) {
-            this.colorer = new GraphColorerImpl();
-        } else if (1 == this.method.getSelectedIndex()) {
+        int selectedIndex = method.getSelectedIndex();
+        if (0 == selectedIndex) {
+            this.colorer = new GraphColorerImplicit();
+        } else if (1 == selectedIndex) {
             this.colorer = new GraphColorerHeuristics();
+        } else if (2 == selectedIndex) {
+            this.colorer = new GraphColorerSimple();
         }
         repaint();
     }
@@ -361,7 +368,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
                 Vertex[] Edge = this.underEdge(Event.getPoint());
                 if (null != Edge) {
                     // Если по дуге - удалить е е
-                    this.graph.deleteEdge(Edge[0], Edge[1]);
+                    this.currentGraph.deleteEdge(Edge[0], Edge[1]);
                 } else {
                     Vertex Result = this.underVertex(Event.getPoint());
                     if (null == Result) {

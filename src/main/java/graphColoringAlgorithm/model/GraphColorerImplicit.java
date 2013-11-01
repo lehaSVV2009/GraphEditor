@@ -13,7 +13,7 @@ import java.util.HashSet;
  * Time: 22:17
  * To change this template use File | Settings | File Templates.
  */
-public class GraphColorerImpl implements GraphColorer {
+public class GraphColorerImplicit implements GraphColorer {
 
     private HashSet<Vertex> vertices;
 
