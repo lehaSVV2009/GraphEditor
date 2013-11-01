@@ -3,7 +3,7 @@ package graphColoringAlgorithm.model;
 import graphColoringAlgorithm.entity.Graph;
 import graphColoringAlgorithm.entity.Vertex;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +15,6 @@ import java.util.HashMap;
 public interface GraphColorer {
 
     public String getName ();
-    public HashMap<Vertex, Integer> getColors (Graph graph);
+    public Map<Vertex, Integer> getColors (Graph graph);
 
 }

@@ -3,10 +3,7 @@ package graphColoringAlgorithm.model;
 import graphColoringAlgorithm.entity.Graph;
 import graphColoringAlgorithm.entity.Vertex;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,16 +20,16 @@ public class GraphColorerHeuristics implements GraphColorer {
     }
 
     @Override
-    public HashMap<Vertex, Integer> getColors(Graph graph) {
-        HashSet<Vertex> coloredVertices = new HashSet<Vertex>();
+    public Map<Vertex, Integer> getColors(Graph graph) {
+        Set<Vertex> coloredVertices = new HashSet<Vertex>();
         VertexRelativeComparator comparator = new VertexRelativeComparator(coloredVertices);
-        HashMap<Vertex, Integer> colors = new HashMap<Vertex, Integer>();
-        ArrayList<Vertex> uncoloredVertices = new ArrayList<Vertex>(graph.getOrder());
+        Map<Vertex, Integer> colors = new HashMap<Vertex, Integer>();
+        List<Vertex> uncoloredVertices = new ArrayList<Vertex>(graph.getOrder());
         for (Vertex vertex : graph.getVertices()) {
             uncoloredVertices.add(vertex);
         }
         int color = 0;
-        HashSet<Vertex> toDelete = new HashSet<Vertex>();
+        Set<Vertex> toDelete = new HashSet<Vertex>();
         while (0 != uncoloredVertices.size()) {
             ++color;
             for (Vertex vertex : toDelete) {

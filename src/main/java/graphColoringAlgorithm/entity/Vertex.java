@@ -1,6 +1,7 @@
 package graphColoringAlgorithm.entity;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +12,7 @@ import java.util.HashSet;
  */
 public class Vertex {
 
-    private HashSet<Vertex> incidentVertices;
+    private Set<Vertex> incidentVertices;
 
     public Vertex() {
         this.incidentVertices = new HashSet<Vertex>();
@@ -33,7 +34,7 @@ public class Vertex {
         return incidentVertices.contains(vertex);
     }
 
-    public HashSet<Vertex> getIncidentVertices() {
+    public Set<Vertex> getIncidentVertices() {
         return incidentVertices;
     }
 }

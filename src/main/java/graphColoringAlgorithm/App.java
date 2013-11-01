@@ -1,5 +1,10 @@
 package graphColoringAlgorithm;
 
+import graphColoringAlgorithm.view.GraphFrame;
+import graphColoringAlgorithm.view.GraphPanel;
+
+import javax.swing.*;
+
 /**
  * Hello world!
  *
@@ -8,6 +13,7 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        JFrame frame = new GraphFrame();
+        frame.setVisible(true);
     }
 }

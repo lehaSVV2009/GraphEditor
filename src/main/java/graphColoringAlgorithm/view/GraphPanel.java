@@ -2,12 +2,14 @@ package graphColoringAlgorithm.view;
 
 import graphColoringAlgorithm.entity.Graph;
 import graphColoringAlgorithm.entity.Vertex;
+import graphColoringAlgorithm.listener.SaveAsGraphListener;
 import graphColoringAlgorithm.model.GraphColorer;
 import graphColoringAlgorithm.model.GraphColorerHeuristics;
 import graphColoringAlgorithm.model.GraphColorerImplicit;
 import graphColoringAlgorithm.model.GraphColorerSimple;
+import graphColoringAlgorithm.util.Messages;
 
-import java.applet.Applet;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.HashMap;
@@ -20,12 +22,19 @@ import java.util.Map;
  * Time: 22:56
  * To change this template use File | Settings | File Templates.
  */
-public class GraphInterface extends Applet implements MouseMotionListener, ItemListener, MouseListener {
+public class GraphPanel extends JInternalFrame implements MouseMotionListener, ItemListener, MouseListener {
+
+    public static int graphCount = 0;
+
+    private final static int xSize = 400;
+    private final static int ySize = 400;
+
 
     /**
      * Граф, который раскрашивается
      */
-    private Graph currentGraph;
+    private Graph graph;
+
     /*
      *
      * Координаты вершин (Вершина => [x, y])
@@ -71,54 +80,139 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private Choice method;
 
+    private Choice colorsMaxNum;
+
+    public GraphPanel() {
+       this(Messages.STANDARD_GRAPH_NAME + graphCount);
+        ++graphCount;
+    }
+
+    public GraphPanel(String graphName) {
+        super(graphName,
+                false,
+                true,
+                false,
+                false);
+        setVisible(true);
+        setPreferredSize(new Dimension(xSize, ySize));
+        init();
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
     /*
-     * Иницилизаци аплета, сразу после того как он был загружен
-     */
+         * Иницилизаци аплета, сразу после того как он был загружен
+         */
     public void init() {
+        ++graphCount;
+        setLayout(new BorderLayout());
         this.position = new HashMap();
-        this.currentGraph = new Graph();
+        this.graph = new Graph();
         this.movingVertex = null;
         this.creatingEdgeFrom = null;
         this.vertexToDelete = null;
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
-        this.method = new Choice();
-        this.method.add("Неявный перебор");
-        this.method.add("Эвристический метод");
-        this.method.add("Простая раскраска");
-        this.method.addItemListener(this);
-        add(this.method);
+        addNorthPanel();
+        addSouthPanel();
         // Граф по-умолчанию
-        Vertex Vertex1 = this.addVertex(new Point(200, 100));
-        Vertex Vertex2 = this.addVertex(new Point(160, 170));
-        Vertex Vertex3 = this.addVertex(new Point(240, 170));
-        this.currentGraph.setEdge(Vertex1, Vertex2);
-        this.currentGraph.setEdge(Vertex2, Vertex3);
-        this.currentGraph.setEdge(Vertex3, Vertex1);
+        graph.setName(
+                getTitle() == null ? Messages.STANDARD_GRAPH_NAME + graphCount : getTitle()
+        );
+        Vertex Vertex1 = this.addVertex(new Point(200, 200));
+        Vertex Vertex2 = this.addVertex(new Point(160, 270));
+        Vertex Vertex3 = this.addVertex(new Point(240, 270));
+        this.graph.setEdge(Vertex1, Vertex2);
+        this.graph.setEdge(Vertex2, Vertex3);
+        this.graph.setEdge(Vertex3, Vertex1);
         this.colorer = new GraphColorerImplicit();
+    }
+
+    private Choice createMaxNumChoice () {
+        Choice choice = new Choice();
+        choice.add("2");
+        choice.add("3");
+        choice.add("4");
+        choice.add("5");
+        choice.add("6");
+        choice.add("7");
+        choice.add("8");
+        choice.select(5);
+        return choice;
+    }
+
+    private Choice createMethodChoice () {
+        Choice choice = new Choice();
+        choice.add("Неявный перебор");
+        choice.add("Эвристический метод");
+        choice.add("Простая раскраска");
+        choice.addItemListener(this);
+        return choice;
+    }
+
+    private void addNorthPanel () {
+        Panel northPanel = new Panel();
+        northPanel.setLayout(new GridLayout(3, 0));
+        Panel titlePanel = new Panel();
+        titlePanel.add(new Label(getTitle()));
+        northPanel.add(titlePanel);
+        Panel colorsMaxNumPanel = new Panel();
+        Label label = new Label(Messages.COLORS_MAX_NUM);
+        colorsMaxNumPanel.add(label);
+        colorsMaxNum = createMaxNumChoice();
+        colorsMaxNumPanel.add(colorsMaxNum);
+        northPanel.add(colorsMaxNumPanel);
+        method = createMethodChoice();
+        northPanel.add(this.method);
+        add(northPanel, BorderLayout.NORTH);
+    }
+
+    private void addSouthPanel () {
+        Panel southPanel = new Panel();
+        Button saveAsButton = new Button(Messages.SAVE_AS_BUTTON);
+        saveAsButton.addActionListener(new SaveAsGraphListener(graph));
+        southPanel.add(saveAsButton);
+        add(southPanel, BorderLayout.SOUTH);
+    }
+
+    private boolean badColorsNum (int maxColorNum, Map<Vertex, Integer> colors) {
+        for (Integer color : colors.values()) {
+            if (maxColorNum <= color) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Рисует интерфейс апплета
      */
     public void paint(Graphics Graphics) {
-        Color[] colors = new Color[9];
-        colors[0] = Color.black;
-        colors[1] = Color.red;
-        colors[2] = Color.green;
-        colors[3] = Color.blue;
-        colors[4] = Color.orange;
-        colors[5] = Color.cyan;
-        colors[6] = Color.magenta;
-        colors[7] = Color.yellow;
-        colors[8] = Color.gray;
-        this.colors = this.colorer.getColors(this.currentGraph);
+        Color[] colorValues = new Color[9];
+        colorValues[0] = Color.black;
+        colorValues[1] = Color.red;
+        colorValues[2] = Color.green;
+        colorValues[3] = Color.blue;
+        colorValues[4] = Color.orange;
+        colorValues[5] = Color.cyan;
+        colorValues[6] = Color.magenta;
+        colorValues[7] = Color.yellow;
+        colorValues[8] = Color.gray;
+        Map<Vertex, Integer> colorsMap = this.colorer.getColors(this.graph);
+        if (badColorsNum(colorsMaxNum.getSelectedIndex() + 1, colorsMap)) {
+            colorer = new GraphColorerSimple();
+            colors = colorer.getColors(graph);
+            JOptionPane.showMessageDialog(this, Messages.ALGORITHM_FAILED);
+            colorsMaxNum.select(5);
+//            method.select(2);
+        } else {
+            colors = colorsMap;
+        }
         Graphics.setColor(Color.white);
-        Graphics.fillRect(0, 0, 400, 300);
+        Graphics.fillRect(0, 100, 400, 300);
 
 
         Graphics.setColor(Color.black);
-        for (Vertex Vertex1 : this.currentGraph.getVertices()) {
+        for (Vertex Vertex1 : this.graph.getVertices()) {
             for (Vertex Vertex2 : Vertex1.getIncidentVertices()) {
                 if (
                         (Vertex1 != this.vertexToDelete) &&
@@ -165,8 +259,6 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
                 Position = this.creatingEdgePosition;
             } else {
                 Position = this.position.get(Vertex);
-
-
             }
             Graphics.setColor(Color.gray);
             Graphics.drawLine(this.position.get(this.creatingEdgeFrom).x,
@@ -185,9 +277,9 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
             }
             Graphics.setColor(Color.black);
         }
-        for (Vertex Vertex : this.currentGraph.getVertices()) {
+        for (Vertex Vertex : this.graph.getVertices()) {
             if (Vertex != this.vertexToDelete) {
-                Graphics.setColor(colors[this.colors.get(Vertex)]);
+                Graphics.setColor(colorValues[this.colors.get(Vertex)]);
                 Graphics.fillOval(this.position.get(Vertex).x - 4,
                         this.position.get(Vertex).y - 4, 8, 8);
             }
@@ -195,7 +287,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
         if ((null != this.selectedVertex) &&
                         (this.vertexToDelete != this.selectedVertex)
                 ) {
-            Graphics.setColor(colors[this.colors.get(this.selectedVertex)]);
+            Graphics.setColor(colorValues[this.colors.get(this.selectedVertex)]);
             Graphics.fillOval(this.position.get(selectedVertex).x - 6,
                     this.position.get(selectedVertex).y - 6, 12, 12);
         }
@@ -218,9 +310,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private Vertex addVertex(Point Point) {
 
-        //TODO: insert addName
-        //TODO: insert addContent
-        Vertex Vertex = this.currentGraph.addVertex();
+        Vertex Vertex = this.graph.addVertex();
         this.position.put(Vertex, Point);
         repaint();
         return Vertex;
@@ -233,7 +323,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private void deleteVertex(Vertex Vertex) {
         this.position.remove(Vertex);
-        this.currentGraph.deleteVertex(Vertex);
+        this.graph.deleteVertex(Vertex);
         repaint();
     }
 
@@ -244,19 +334,23 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * @param To   Вторая вершина
      */
     private void createEdge(Vertex From, Vertex To) {
-        this.currentGraph.setEdge(From, To);
+        this.graph.setEdge(From, To);
         repaint();
     }
 
     /**
      * Определяет, произошло ли действие над определенной вершиной
      *
-     * @param Cursor Точка, над которой находиться курсор
-     * @param Vertex Вершина, которую проверяем
+     * @param cursor Точка, над которой находиться курсор
+     * @param vertex Вершина, которую проверяем
      * @return Находиться ли курсор над определенной вершиной
      */
-    private boolean underVertex(Point Cursor, Vertex Vertex) {
-        if (10 >= this.position.get(Vertex).distance(Cursor)) {
+    private boolean underVertex(Point cursor, Vertex vertex) {
+        if (position == null) {
+            return false;
+        } else if (position.get(vertex) == null) {
+            return false;
+        } else if (10 >= this.position.get(vertex).distance(cursor)) {
             return true;
         } else {
             return false;
@@ -270,12 +364,10 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      * @return Вершина, над которой курсор, иначе null
      */
     private Vertex underVertex(Point Cursor) {
-        for (Vertex Vertex : this.currentGraph.getVertices()) {
+        for (Vertex Vertex : this.graph.getVertices()) {
             if (this.underVertex(Cursor, Vertex)) {
                 return Vertex;
             }
-
-
         }
         return null;
     }
@@ -323,7 +415,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     private Vertex[] underEdge(Point Cursor) {
         Vertex[] Edge = new Vertex[2];
-        for (Vertex Vertex1 : this.currentGraph.getVertices()) {
+        for (Vertex Vertex1 : this.graph.getVertices()) {
             for (Vertex Vertex2 : Vertex1.getIncidentVertices()) {
                 if (Vertex1.isConnect(Vertex2)) {
                     Edge[0] = Vertex1;
@@ -369,7 +461,7 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
                 Vertex[] Edge = this.underEdge(Event.getPoint());
                 if (null != Edge) {
                     // Если по дуге - удалить е е
-                    this.currentGraph.deleteEdge(Edge[0], Edge[1]);
+                    this.graph.deleteEdge(Edge[0], Edge[1]);
                 } else {
                     Vertex Result = this.underVertex(Event.getPoint());
                     if (null == Result) {
@@ -488,4 +580,5 @@ public class GraphInterface extends Applet implements MouseMotionListener, ItemL
      */
     public void mouseExited(MouseEvent Event) {
     }
+
 }

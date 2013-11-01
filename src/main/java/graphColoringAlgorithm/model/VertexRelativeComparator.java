@@ -4,6 +4,7 @@ import graphColoringAlgorithm.entity.Vertex;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,9 +15,9 @@ import java.util.HashSet;
  */
 public class VertexRelativeComparator implements Comparator<Vertex> {
 
-    private HashSet coloredVertices;
+    private Set coloredVertices;
 
-    public VertexRelativeComparator(HashSet coloredVertices) {
+    public VertexRelativeComparator(Set coloredVertices) {
         this.coloredVertices = coloredVertices;
     }
 

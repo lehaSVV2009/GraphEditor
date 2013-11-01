@@ -5,6 +5,8 @@ import graphColoringAlgorithm.entity.Vertex;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,11 +17,11 @@ import java.util.HashSet;
  */
 public class GraphColorerImplicit implements GraphColorer {
 
-    private HashSet<Vertex> vertices;
+    private Set<Vertex> vertices;
 
-    private HashMap<Integer, Vertex> numberToVertex;
+    private Map<Integer, Vertex> numberToVertex;
 
-    private HashMap<Vertex, Integer> vertexToNumber;
+    private Map<Vertex, Integer> vertexToNumber;
 
     private int []color;
 
@@ -101,7 +103,7 @@ public class GraphColorerImplicit implements GraphColorer {
     }
 
     @Override
-    public HashMap<Vertex, Integer> getColors(Graph graph) {
+    public Map<Vertex, Integer> getColors(Graph graph) {
         vertices = graph.getVertices();
         numberToVertex = new HashMap<Integer, Vertex>(vertices.size());
         vertexToNumber = new HashMap<Vertex, Integer>(vertices.size());
@@ -122,7 +124,7 @@ public class GraphColorerImplicit implements GraphColorer {
             }
             simpleColor(i + 1);
         }
-        HashMap<Vertex, Integer> colors = new HashMap<Vertex, Integer>(vertices.size());
+        Map<Vertex, Integer> colors = new HashMap<Vertex, Integer>(vertices.size());
         for (Vertex vertex : vertices) {
             colors.put(vertex, color[vertexToNumber.get(vertex)]);
         }

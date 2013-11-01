@@ -4,6 +4,7 @@ import graphColoringAlgorithm.entity.Graph;
 import graphColoringAlgorithm.entity.Vertex;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,9 +26,9 @@ public class GraphColorerSimple implements GraphColorer {
     }
 
     @Override
-    public HashMap<Vertex, Integer> getColors(Graph graph) {
+    public Map<Vertex, Integer> getColors(Graph graph) {
         Set<Vertex> vertices = graph.getVertices();
-        HashMap<Vertex, Integer> colors = new HashMap<Vertex, Integer>();
+        Map<Vertex, Integer> colors = new HashMap<Vertex, Integer>();
         for (Vertex vertex : vertices) {
             colors.put(vertex, getColorNum());
         }

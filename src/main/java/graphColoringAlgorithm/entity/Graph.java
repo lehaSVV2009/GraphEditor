@@ -1,6 +1,7 @@
 package graphColoringAlgorithm.entity;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +12,9 @@ import java.util.HashSet;
  */
 public class Graph {
 
-    private HashSet<Vertex> vertices;
+    private String name;
+
+    private Set<Vertex> vertices;
 
     public Graph() {
         this.vertices = new HashSet<Vertex>();
@@ -34,7 +37,7 @@ public class Graph {
     }
 
     public void deleteVertex (Vertex vertex) {
-        HashSet<Vertex> toDelete = new HashSet<Vertex>();
+        Set<Vertex> toDelete = new HashSet<Vertex>();
         for (Vertex incidentVertex : vertex.getIncidentVertices()) {
             toDelete.add(incidentVertex);
         }
@@ -48,7 +51,15 @@ public class Graph {
         return vertices.size();
     }
 
-    public HashSet<Vertex> getVertices() {
+    public Set<Vertex> getVertices() {
         return vertices;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
